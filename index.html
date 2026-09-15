@@ -1,1 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0d1117">
+  <title>HYROX Toulouse 2027 — Sub 75 Plan</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root{
+      --bg:#0d1117; --panel:#161b22; --border:#30363d; --text:#f0f3f6;
+      --muted:#9da7b3; --green:#5bd6bb; --blue:#79c0ff; --yellow:#e3b341;
+      --purple:#d2a8ff;
+    }
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);color:var(--text);line-height:1.5
+    }
+    button,select{font:inherit}
+    .container{width:min(1120px,94%);margin:0 auto;padding:34px 0 60px}
+    .hero{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end;margin-bottom:24px}
+    .eyebrow{color:var(--green);font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+    h1{margin:0;font-size:clamp(32px,5vw,54px);letter-spacing:-.04em;line-height:1.02}
+    .subtitle{margin:12px 0 0;max-width:720px;color:var(--muted);font-size:16px}
+    .goal-card{min-width:190px;background:linear-gradient(145deg,#163a32,#101d1a);border:1px solid #2f6c5e;border-radius:18px;padding:18px 20px}
+    .goal-card .small{color:#a9cfc6;text-transform:uppercase;letter-spacing:.1em;font-size:11px;font-weight:800}
+    .goal-card .big{margin-top:3px;font-size:30px;font-weight:900;color:var(--green)}
+    .week-picker{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;margin-bottom:20px}
+    .week-picker label{display:block;color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;margin-bottom:7px}
+    select{width:min(440px,100%);background:#0f141a;color:var(--text);border:1px solid #3b444f;border-radius:12px;padding:12px 42px 12px 14px;outline:none;cursor:pointer}
+    .phase{text-align:right}.phase strong{display:block;font-size:14px;color:var(--green)}.phase span{color:var(--muted);font-size:13px}
+    .week-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+    .metric{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px 15px}
+    .metric .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+    .metric .value{margin-top:4px;font-size:18px;font-weight:800}
+    .days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:18px}
+    .day-btn{appearance:none;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:14px;padding:12px 7px;cursor:pointer;transition:.18s ease;text-align:center}
+    .day-btn:hover{border-color:#53606e;transform:translateY(-1px)}
+    .day-btn.active{background:var(--green);color:#08231d;border-color:var(--green);font-weight:900}
+    .day-btn .dow{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:800}
+    .day-btn .date{display:block;margin-top:2px;font-size:16px;font-weight:900}
+    .workout-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+    .workout-head{padding:22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+    .workout-head h2{margin:0 0 6px;font-size:25px}
+    .workout-note{color:var(--muted);max-width:760px;font-size:14px}
+    .tag-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px}
+    .tag{padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;border:1px solid transparent}
+    .tag.run{color:var(--green);background:#102c27;border-color:#285c50}
+    .tag.strength{color:var(--blue);background:#14283a;border-color:#2d5574}
+    .tag.hyrox{color:var(--yellow);background:#312810;border-color:#64511d}
+    .tag.rest{color:#c5ccd4;background:#272c33;border-color:#424a54}
+    .tag.test{color:var(--purple);background:#2d2039;border-color:#5e4276}
+    .session-focus{margin:18px 22px 0;border:1px solid #315e54;background:#10241f;border-radius:14px;padding:14px 16px;display:none}
+    .session-focus.show{display:block}.session-focus strong{color:var(--green)}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:710px}
+    th{padding:13px 18px;text-align:left;background:#11161c;color:#abb4bf;font-size:11px;text-transform:uppercase;letter-spacing:.07em}
+    td{padding:15px 18px;border-top:1px solid var(--border);vertical-align:top;font-size:14px}
+    td.exercise{font-weight:750}td.detail{color:#c5ccd4}
+    tr.run-row{background:#11231f}tr.run-row td.exercise{color:var(--green)}
+    tr.hyrox-row{background:#26200f}tr.hyrox-row td.exercise{color:#f1c85b}
+    tr.rest-row{background:#20242a}tr.rest-row td.exercise{color:#c8d0d8}
+    tr.test-row{background:#241b2e}tr.test-row td.exercise{color:#dab6ff}
+    .notes{margin-top:18px;display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+    .note-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:17px 18px;color:var(--muted);font-size:14px}
+    .note-card h3{margin:0 0 9px;color:var(--text);font-size:15px}.note-card strong{color:var(--text)}
+    @media(max-width:820px){.hero{grid-template-columns:1fr}.goal-card{width:100%}.week-summary{grid-template-columns:1fr 1fr}.days{grid-template-columns:repeat(4,1fr)}.week-picker{grid-template-columns:1fr}.phase{text-align:left}.notes{grid-template-columns:1fr}}
+    @media(max-width:520px){.container{width:95%;padding-top:24px}.days{grid-template-columns:repeat(2,1fr)}.workout-head{flex-direction:column}.tag-row{justify-content:flex-start}th,td{padding-left:13px;padding-right:13px}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">HYROX Toulouse 2027</div>
+      <h1>Sub‑75 Training Plan</h1>
+      <p class="subtitle">Week-by-week running, strength and HYROX preparation. Select the week, then choose a day to see the exact session.</p>
+    </div>
+    <div class="goal-card">
+      <div class="small">Race goal</div>
+      <div class="big">&lt; 1:15</div>
+      <div class="small">3–7 Feb 2027</div>
+    </div>
+  </section>
 
+  <section class="week-picker">
+    <div>
+      <label for="weekSelect">Choose week</label>
+      <select id="weekSelect" onchange="loadWeek(this.value)">
+        <option value="2026-09-14">14–20 September 2026</option>
+      </select>
+    </div>
+    <div class="phase">
+      <strong id="phaseTitle">Phase 1 — Baseline</strong>
+      <span id="phaseText">Build the running benchmark and keep strength.</span>
+    </div>
+  </section>
+
+  <section class="week-summary" id="weekSummary"></section>
+  <section class="days" id="dayButtons"></section>
+
+  <section class="workout-card">
+    <div class="workout-head">
+      <div>
+        <h2 id="workoutTitle"></h2>
+        <div class="workout-note" id="workoutNote"></div>
+      </div>
+      <div class="tag-row" id="tagRow"></div>
+    </div>
+    <div class="session-focus" id="sessionFocus"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Exercise / Block</th><th>Sets / Distance</th><th>Reps / Intensity</th><th>Rest / Notes</th></tr></thead>
+        <tbody id="workoutTable"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="notes">
+    <div class="note-card">
+      <h3>Week objective</h3>
+      <strong>Do not chase fatigue.</strong> This is the first structured HYROX week. Wednesday gives us the running benchmark that will determine future interval speeds. Sunday is the club HYROX exposure.
+    </div>
+    <div class="note-card">
+      <h3>Important</h3>
+      Tuesday lower body stays around <strong>1–2 RIR</strong> so the legs are ready for Wednesday. Saturday is full recovery before HYROX.
+    </div>
+  </section>
+</div>
+
+<script>
+const plan = {
+  "2026-09-14": {
+    phase:"Phase 1 — Baseline",
+    phaseText:"Build the running benchmark and keep strength.",
+    summary:[["Running","3 exposures"],["Main run","5 km test"],["HYROX","1 club session"],["Recovery","Saturday off"]],
+    days:{
+      Monday:{date:"14 Sep",title:"Monday — Upper + Easy Run",note:"Keep your normal upper-body strength work. The run is purely aerobic and should not create fatigue for Tuesday/Wednesday.",tags:[["Strength","strength"],["Easy Run","run"]],focus:"Easy run: <strong>3–4 km Zone 2</strong>. Conversational pace. Do not chase pace.",rows:[
+        ["Chest Press Machine / DB Press","3","6–8","2–3 min",""],["Chest-Supported T-Bar Row","2","6–8","2–3 min",""],["Lat Pulldown","2","6–8","2–3 min",""],["Y Lateral Raise","2","6–8","1–2 min",""],["Preacher Curl","2","6–8","1–2 min",""],["Overhead Cable Triceps Extension","3","6–10","1–2 min",""],["Zottman Curl","2","8–12","1–2 min",""],["Weighted Cable Crunch","2","6–10","1–2 min",""],["Lying Leg Raise + Pelvic Tilt","2","8–12","1–2 min",""],["🏃 Easy Zone 2 Run","3–4 km","Easy / conversational","No pace target","run-row"]]},
+      Tuesday:{date:"15 Sep",title:"Tuesday — Lower Strength",note:"Keep strength, but do not turn this into a leg-destruction session. Wednesday is the key benchmark.",tags:[["Strength","strength"],["Controlled","rest"]],focus:"Main lower-body work around <strong>1–2 reps in reserve</strong>. No incline treadmill today.",rows:[
+        ["Back Squat","2","4–6","3–5 min • 1–2 RIR",""],["Romanian Deadlift","2","6–8","2–3 min • 1–2 RIR",""],["Leg Press","1","6–8","2–3 min",""],["Leg Curl","2","6–8","1–2 min",""],["Leg Extension","2","6–8","1–2 min",""],["Standing / Seated Calf Raise","2","8–12","1–2 min",""],["❌ No extra cardio","—","Recover","Prepare for Wednesday","rest-row"]]},
+      Wednesday:{date:"16 Sep",title:"Wednesday — 5 km Running Benchmark",note:"This replaces the normal 7–10 km easy run. We need a baseline before prescribing future interval and tempo paces.",tags:[["Key Run","run"],["Benchmark","test"]],focus:"Goal: obtain a trustworthy <strong>5 km best sustainable effort</strong>. Record total time, average pace, treadmill/outside and RPE /10.",rows:[
+        ["🏃 Easy warm-up","2 km","Very easy","Relaxed","run-row"],["Running drills + strides","4 × 20 sec","Fast but relaxed","40–60 sec easy","run-row"],["⏱️ 5 km Test","5 km","Best sustainable effort","Even pacing","test-row"],["🏃 Cooldown","1 km","Very easy","Walk after if needed","run-row"],["Reverse Crunch","Optional 2","10–15","Only if fresh",""],["Weighted Plank","Optional 2","20–40 sec","Only if fresh",""]]},
+      Thursday:{date:"17 Sep",title:"Thursday — Pull + Hip Hinge",note:"Normal pull session. No additional cardio so you absorb Wednesday's running work.",tags:[["Strength","strength"],["No Cardio","rest"]],focus:"Keep the 45° hip extension as a <strong>low-fatigue hinge</strong>, not another maximal posterior-chain session.",rows:[
+        ["Chest-Supported T-Bar Row","2","6–8","2–3 min",""],["Neutral / Close-Grip Lat Pulldown","2","6–8","2–3 min",""],["45° Hip Extension","2","8–12","1–2 min",""],["Reverse Pec Deck","2","8–12","1–2 min",""],["Cable Lateral Raise","2","8–12","1–2 min",""],["Bayesian Cable Curl","2","6–8","1–2 min",""],["Cable / Barbell Wrist Curl","2","10–15","1 min",""],["Shrugs / Traps","2","8–12","1 min",""],["❌ No cardio","—","Recovery","—","rest-row"]]},
+      Friday:{date:"18 Sep",title:"Friday — Push + Quads + Abs",note:"Keep the hypertrophy session. No mandatory conditioning; Sunday's HYROX class is the priority.",tags:[["Strength","strength"],["Optional Skill","hyrox"]],focus:"Optional only: <strong>10 minutes HYROX technique</strong> after lifting — SkiErg, row, wall-ball rhythm or transitions. No hard conditioning.",rows:[
+        ["Incline Barbell Press","3","6–8","3–5 min",""],["Leg Extension","2","6–8","1–2 min",""],["Pec Deck","2","6–8","1–2 min",""],["Cable / DB Lateral Raise","2","8–12","1–2 min",""],["Cable Triceps Pressdown","3","6–8","1–2 min",""],["Standing / Seated Calf Raise","2","8–12","1–2 min",""],["Weighted Cable Crunch","2","8–12","1–2 min",""],["Ab-Wheel Rollout","2","6–12","1–2 min",""],["Optional HYROX technique","10 min max","Easy / technical","Stop before fatigue","hyrox-row"]]},
+      Saturday:{date:"19 Sep",title:"Saturday — Full Rest",note:"No padel this week. Arrive fresh enough to get quality work from Sunday's HYROX session.",tags:[["Recovery","rest"]],focus:"Walk normally, hydrate, eat normally and recover. <strong>No hard cardio.</strong>",rows:[
+        ["😴 Full Rest","—","Recovery","Normal daily movement only","rest-row"],["Optional mobility","10–15 min","Easy","Hips / ankles / T-spine","rest-row"]]},
+      Sunday:{date:"20 Sep",title:"Sunday — HYROX Club Session",note:"This is the coached/club HYROX week. Follow the class programming instead of adding another full simulation.",tags:[["HYROX","hyrox"],["Club","hyrox"]],focus:"Main objective: <strong>quality movement and race-station familiarity</strong>. If sleds are available, get exposure to both sled push and sled pull.",rows:[
+        ["HYROX Club Training","Class program","Coach prescribed","Do not add a second simulation","hyrox-row"],["Sled Push","If programmed / available","Technique + race familiarity","Controlled","hyrox-row"],["Sled Pull","If programmed / available","Technique + race familiarity","Controlled","hyrox-row"],["Post-session cooldown","10 min","Easy walk / jog","Then recover","run-row"]]}
+    }
+  }
+};
+
+const dayOrder=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+let activeWeek="2026-09-14", activeDay="Monday";
+
+function loadWeek(key){
+  activeWeek=key;
+  const week=plan[key];
+  document.getElementById("phaseTitle").textContent=week.phase;
+  document.getElementById("phaseText").textContent=week.phaseText;
+  document.getElementById("weekSummary").innerHTML=week.summary.map(([label,value])=>`<div class="metric"><div class="label">${label}</div><div class="value">${value}</div></div>`).join("");
+  document.getElementById("dayButtons").innerHTML=dayOrder.map(day=>{
+    const d=week.days[day];
+    return `<button class="day-btn ${day===activeDay?"active":""}" onclick="showDay('${day}')"><span class="dow">${day.slice(0,3)}</span><span class="date">${d.date.split(" ")[0]}</span></button>`;
+  }).join("");
+  showDay(activeDay);
+}
+function showDay(day){
+  activeDay=day;
+  const data=plan[activeWeek].days[day];
+  document.querySelectorAll(".day-btn").forEach((b,i)=>b.classList.toggle("active",dayOrder[i]===day));
+  document.getElementById("workoutTitle").textContent=data.title;
+  document.getElementById("workoutNote").textContent=data.note;
+  document.getElementById("tagRow").innerHTML=data.tags.map(([n,c])=>`<span class="tag ${c}">${n}</span>`).join("");
+  const f=document.getElementById("sessionFocus"); f.innerHTML=data.focus||""; f.classList.toggle("show",!!data.focus);
+  document.getElementById("workoutTable").innerHTML=data.rows.map(r=>`<tr class="${r[4]||""}"><td class="exercise">${r[0]}</td><td class="detail">${r[1]}</td><td class="detail">${r[2]}</td><td class="detail">${r[3]}</td></tr>`).join("");
+}
+loadWeek(activeWeek);
+</script>
+</body>
+</html>
